@@ -8,7 +8,6 @@
 // This is a simple test program. It fits on one slide in a talk.
 // It studies the charged multiplicity distribution at the LHC.
 
-#include "fastjet/ClusterSequence.hh"
 #include "Pythia8/Pythia.h"
 #include <iostream>
 #include "TH2F.h"
@@ -30,7 +29,7 @@ TFile *outFile;
 
 TH2F *hEtaPhi; 
 
-Float_t mEta, mPhi, mCharge, mPx, mPy, mPz;
+Float_t mEta, mPhi, mCharge, mPx, mPy, mPz, mEnergy;
 Int_t mEvt, mTrk, mMult;
 
 bool ConnectOutput(const char* output, const char* treeName){
@@ -50,6 +49,7 @@ bool ConnectOutput(const char* output, const char* treeName){
   tree->Branch("mPx", &mPx, "mPx/F");
   tree->Branch("mPy", &mPy, "mPy/F");
   tree->Branch("mPz", &mPz, "mPz/F");
+  tree->Branch("mEnergy", &mEnergy, "mEnergy/F");
   tree->Branch("mCharge", &mCharge, "mCharge/F");
   tree->Branch("mEta", &mEta, "mEta/F");
   tree->Branch("mPhi", &mPhi, "mPhi/F");
@@ -72,6 +72,7 @@ void fillInfo(Event& event,int iEvt, int iTrk){
   mCharge = event[iTrk].charge();
   mPhi = event[iTrk].phi();
   mEta = event[iTrk].eta();
+  mEnergy = event[iTrk].e();
   mMult = event.size();
 
   hEtaPhi->Fill(mEta, mPhi);
@@ -86,7 +87,6 @@ int main() {
     cout << "Incorrect number of arguments. Required only one argument and that is the position of outputfile. Returning." << endl;
     return 1;
   }
-  string outputName = argv[1];
   */
   
   //need to initialize TApplication only if i am going to be using root graphical features

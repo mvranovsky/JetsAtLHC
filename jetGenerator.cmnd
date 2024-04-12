@@ -7,7 +7,7 @@
 Beams:eCM =  5000               ! CM energy of collision
 Beams:idA =  2212                    ! p
 Beams:idB =  2212                    ! p
-Main:numberOfEvents   = 1000      ! number of events to generate
+Main:numberOfEvents   = 100      ! number of events to generate
 Next:numberCount      = 10        ! print message every n events
 Next:numberShowEvent  = 1          ! print event record n times
 Main:timesAllowErrors = 1
@@ -20,7 +20,7 @@ Main:timesAllowErrors = 1
 ! 23:onIfAny = 5           ! Decays to b quarks only, for mass tests
 ! 23:onIfAny = 11          ! Z decays to electrons, for QED tests
 HardQCD:all = on
-PhaseSpace:pTHatMin = 20.
+PhaseSpace:pTHatMin = 50.
 
 ! 3) Optionally switch on/off photon ISR and hadronization
 ! PDF:lepton = off
