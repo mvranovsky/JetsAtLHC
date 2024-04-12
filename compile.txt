@@ -1,0 +1,15 @@
+#compiling pythia file
+export LD_LIBRARY_PATH=/home/michal/Pythia/pythia8311/lib:$LD_LIBRARY_PATH
+
+
+g++ -I/home/michal/Pythia/pythia8311/include `root-config --cflags` jetGenerator.cc -o jetGenerator -lpythia8 -L/home/michal/Pythia/pythia8311/lib `root-config --libs`
+
+
+#compiling fastjet
+g++ fastjetCluster.cc -o fastjetCluster `fastjet-install/bin/fastjet-config --cxxflags --libs --plugins`
+
+g++ -o fastjetCluster fastjetCluster.cc -I/home/michal/fastjet/fastjet-3.4.2/include $(root-config --cflags) -L/home/michal/fastjet/fastjet-3.4.2/lib -lfastjet $(root-config --libs)
+
+
+#nejako pridat tieto options:
+`fastjet-install/bin/fastjet-config --cxxflags --libs --plugins`
