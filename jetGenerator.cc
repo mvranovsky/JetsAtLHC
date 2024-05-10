@@ -14,13 +14,7 @@
 #include "TString.h"
 #include "TFile.h"
 #include "TTree.h"
-/*
-#include "/home/michal/root/root/include/ROOT/RConfig.hxx"
-#include "/home/michal/root/root/include/TH2F.h"
-#include "/home/michal/root/root/include/TTree.h"
-#include "/home/michal/root/root/include/TString.h"
-#include "/home/michal/root/root/include/TFile.h"
-*/
+
 using namespace std;
 using namespace Pythia8;
 
@@ -73,7 +67,12 @@ void fillInfo(Event& event,int iEvt, int iTrk){
   mPhi = event[iTrk].phi();
   mEta = event[iTrk].eta();
   mEnergy = event[iTrk].e();
-  mMult = event.size();
+
+  mMult = 0;
+  for (int iTrk = 0; iTrk < event.size(); ++iTrk){
+    if(event[iTrk].isFinal())//only final state particles are counted in multiplicity
+      ++mMult;
+  }
 
   hEtaPhi->Fill(mEta, mPhi);
 
@@ -88,9 +87,6 @@ int main() {
     return 1;
   }
   */
-  
-  //need to initialize TApplication only if i am going to be using root graphical features
-  //TApplication theApp("hist", &argc, argv);
 
   const char* outputName = "/home/michal/Pythia/jetGenerator/jetGen.root";
   if(!ConnectOutput(outputName, "recTree")){

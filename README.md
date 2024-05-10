@@ -25,6 +25,7 @@ after that, one should be able to run the generation of events by running the co
 
 <pre><code> ./jetGenerator </pre></code>
 
-The output is the *jetGen.root* file, which contains a TTree and a correlation plot of rapidity and azimuthal angle. 
+The output is the *jetGen.root* file, which contains a TTree which holds important information about the events and a correlation plot of rapidity and azimuthal angle. 
 
 ## FastJet
+FastJet program is designed to find jets
