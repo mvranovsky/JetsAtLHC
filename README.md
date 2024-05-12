@@ -28,7 +28,7 @@ after that, one should be able to run the generation of events by running the co
 The output is the *jetGen.root* file, which contains a TTree which holds important information about the events and a correlation plot of rapidity and azimuthal angle. 
 
 ## FastJet
-FastJet software is used for finding jets particle collisions. It includes several jet finding algorithms such as k_{t}, anti-k_{t} or Cambridge/Aachen. To compile the program use command:
+FastJet software is used for finding jets particle collisions. It includes several jet finding algorithms such as k_t, anti-k_t or Cambridge/Aachen. To compile the program use command:
 
 <pre><code> g++ -o fastjetCluster fastjetCluster.cc -I/home/user/fastjet/fastjet-3.4.2/include $(root-config --cflags) -L/home/user/fastjet/fastjet-3.4.2/lib -lfastjet $(root-config --libs) </pre></code>
 
