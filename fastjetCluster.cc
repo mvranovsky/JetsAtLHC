@@ -10,7 +10,7 @@
 #include "TMath.h"
 #include "TH3.h"
 #include "TGraph2D.h"
-
+#include "TLegend.h"
 
 
 using namespace std;
@@ -25,7 +25,7 @@ TFile* file;
 TH2F* hist[nEvents];
 TH1I *hNJetsPerEvent, *hNJetsPerEventCut;
 TH2F* hRapPhiCorr;
-TH1D *hJetPt, *hJetPtCut, *hDijetPhi, *hDijetPhi2;
+TH1D *hJetPt, *hJetPtCut, *hDijetPhi, *hDijetPhi2, *hJetEta, *hJetY, *hJetImbalance;
 TH3F *hRapPhiPtCorr[nEvents];
 TGraph2D *h3DGraph;
 
@@ -59,14 +59,20 @@ bool ConnectInput(const char* fileName, const char* treeName){
   histograms1D.push_back(hNJetsPerEvent);
   hNJetsPerEventCut = new TH1I("hNJetsPerEventCut", "Number of jets per event", 10, 0, 10);
   histograms1D.push_back(hNJetsPerEventCut);
-  hJetPt = new TH1D("hJetPt", "hJetPt", 50, 0, 50);
+  hJetPt = new TH1D("hJetPt", "hJetPt", 50, 0, 100);
   histograms1D.push_back(hJetPt);
-  hJetPtCut = new TH1D("hJetPtCut", "hJetPtCut", 50, 0, 50);
+  hJetPtCut = new TH1D("hJetPtCut", "hJetPtCut", 20, 0, 100);
   histograms1D.push_back(hJetPtCut);
   hDijetPhi = new TH1D("hDijetPhi", "hDijetPhi", 36,0,360);
   histograms1D.push_back(hDijetPhi);
   hDijetPhi2 = new TH1D("hDijetPhi2", "hDijetPhi2", 36, -90, 270);
   histograms1D.push_back(hDijetPhi2);
+  hJetImbalance = new TH1D("hJetImbalance", "hJetImbalance", 10, 0,1);
+  histograms1D.push_back(hJetImbalance);
+  hJetEta = new TH1D("hJetEta", "hJetEta", 8, -4,4);
+  histograms1D.push_back(hJetEta);
+  hJetY = new TH1D("hJetY", "hJetY", 8, -4,4);
+  histograms1D.push_back(hJetY);
 
   h3DGraph = new TGraph2D();
 
@@ -109,17 +115,19 @@ void Make(vector<PseudoJet> particles, int EvtNum){
     hRapPhiPtCorr[EvtNum] = new TH3F(Form("hRPP%iJet%i", EvtNum, iJet), "hRapPhiPtCorr", 32, -4,4, 36, -180, 180, 50, 0, 100 );
     for (int iTrk = 0; iTrk < constituents.size() ; ++iTrk) {
       hist[EvtNum]->Fill( constituents[iTrk].rap(), constituents[iTrk].phi()*180/TMath::Pi() - 180);
-      //hRapPhiCorr->Fill(constituents[iTrk].rap(), constituents[iTrk].phi() );
-      h3DGraph->SetPoint(constituents[iTrk].rap() , constituents[iTrk].phi() *180/TMath::Pi(), constituents[iTrk].pt() , j);
-      ++j;
     }// tracks in jet
     hRapPhiPtCorr[EvtNum]->Fill( jetsFiltered[iJet].rap(), jetsFiltered[iJet].phi()*180/TMath::Pi() - 180, jetsFiltered[iJet].pt() );
     hDijetPhi2->Fill( (jetsFiltered[iJet].phi() - jetsFiltered[0].phi() )*180/TMath::Pi() );
+    hJetY->Fill( jetsFiltered[iJet].rap() );
+    hJetEta->Fill(jetsFiltered[iJet].eta() );
+
   }// jets
 
   if(jetsFiltered.size() == 2){
     hDijetPhi->Fill( (jetsFiltered[0].phi() - jetsFiltered[1].phi() )*180/TMath::Pi() );
+    hJetImbalance->Fill( (jetsFiltered[0].pt() - jetsFiltered[1].pt())/(jetsFiltered[0].pt() + jetsFiltered[1].pt() ) );
   }
+
 
 }
 
@@ -159,8 +167,9 @@ void DrawText(double xl, double yl, double xr, double yr)
    textSTAR -> SetFillColor(0);
    textSTAR -> SetTextFont(62);
    textSTAR -> SetTextAlign(13);
-   textSTAR->AddText("JetsAtLHC");
-   textSTAR->AddText(" Pythia8 #sqrt{s}= 5 TeV");
+   textSTAR->AddText("JetsAtLHC Pythia8");
+   textSTAR->AddText("pp at #sqrt{s}= 5 TeV");
+   textSTAR->AddText("anti-k_{t}, R = 0.4");
 
    textSTAR -> Draw("same");
 }
@@ -168,7 +177,7 @@ void DrawText(double xl, double yl, double xr, double yr)
 
 void hist1D(){
   TCanvas *c;
-  for(int i = 0; i < histograms1D.size(); ++i){
+  for(int i = 0; i < histograms1D.size() - 1; ++i){
     c = new TCanvas("c", "c", 800, 800);
     gStyle->SetOptStat(0);
     gPad->SetMargin(0.14,0.07,0.11,0.06); // (Float_t left, Float_t right, Float_t bottom, Float_t top)
@@ -185,9 +194,17 @@ void hist1D(){
       c->SetLogy();
     } else if(i == 3){
       histograms1D[i]->GetXaxis()->SetTitle("p_{T}^{after Cut} [GeV/c]");
-      c->SetLogy();
-
+    } else if(i == 4 ){
+      histograms1D[i]->GetXaxis()->SetTitle("#Delta #phi^{pairs} [#circ]");
+    } else if(i == 5 ){
+      histograms1D[i]->GetXaxis()->SetTitle("#phi [#circ]");
+    } else if(i == 6 ){
+      histograms1D[i]->GetXaxis()->SetTitle("A_{j} [-]");
+    }else if(i == 7 ){
+      histograms1D[i]->GetXaxis()->SetTitle(" #eta / y [-]");
     }
+
+
     histograms1D[i]->GetYaxis()->SetTitle("counts");
     histograms1D[i]->GetXaxis()->SetTitleFont(textFont);
     histograms1D[i]->GetYaxis()->SetTitleFont(textFont);
@@ -200,10 +217,33 @@ void hist1D(){
     histograms1D[i]->GetXaxis()->SetTitleOffset(1.);
     histograms1D[i]->GetYaxis()->SetTitleOffset(1.5);
     histograms1D[i]->SetTitle("");
-    histograms1D[i]->Draw("same");
+    histograms1D[i]->SetLineColor(kBlack);
+    histograms1D[i]->SetMarkerStyle(20);
+    histograms1D[i]->SetMarkerSize(2);
+    histograms1D[i]->SetMarkerColor(kBlack);
+    histograms1D[i]->SetFillColorAlpha(kBlack, 0.3);
+    histograms1D[i]->Draw("same E hist");
 
+    TLegend *leg;
+    if(i == 7){
+      histograms1D[i+1]->SetLineColor(kRed);
+      histograms1D[i+1]->SetMarkerStyle(20);
+      histograms1D[i+1]->SetMarkerSize(2);
+      histograms1D[i+1]->SetMarkerColor(kRed);
+      histograms1D[i+1]->SetFillColorAlpha(kRed, 0.1);
+      histograms1D[i+1]->Draw("same E hist");
+      leg = new TLegend(0.2,0.8, 0.4, 0.7);
+      leg->SetTextFont(textFont);
+      leg->SetTextSize(0.03);
+      leg->SetFillColor(kWhite);
+      leg->SetBorderSize(0);
+      leg->AddEntry(histograms1D[i], "#eta distribution", "l");
+      leg->AddEntry(histograms1D[i+1], "y distribution", "l");
+      leg->Draw("same");
 
-    DrawText(0.65, 0.88, 0.85,0.93);
+    }
+
+    DrawText(0.65, 0.86, 0.85,0.93);
 
     TString namePos = "figures/" + TString(histograms1D[i]->GetName()) + ".pdf";
     //cerr << "Saving as " << namePos << endl;
@@ -241,7 +281,7 @@ void drawGraph() {
 void RapPhiPlot(){
   // print all the histograms from different events to canvas with different colors
   TCanvas *c = new TCanvas("c", "c", 800, 800);
-  gPad->SetMargin(0.14,0.07,0.11,0.11); // (Float_t left, Float_t right, Float_t bottom, Float_t top)
+  gPad->SetMargin(0.14,0.07,0.11,0.05); // (Float_t left, Float_t right, Float_t bottom, Float_t top)
   gPad->SetTickx();
   gPad->SetTicky(); 
 
@@ -260,11 +300,20 @@ void RapPhiPlot(){
     hist[iEvt]->GetYaxis()->SetTitleSize(labelSize);
     hist[iEvt]->GetXaxis()->SetTitleOffset(0.9);
     hist[iEvt]->GetYaxis()->SetTitleOffset(1.3);
-    hist[iEvt]->SetMarkerColor(iEvt);
+    hist[iEvt]->SetTitle("");
     hist[iEvt]->SetMarkerStyle(iEvt);
+    if(iEvt == 0 || iEvt ==10 || iEvt == 18 || iEvt == 17){ //condition to avoid white or low visibility colors
+      hist[iEvt]->SetMarkerColor(iEvt + 140);
+    } else{
+      hist[iEvt]->SetMarkerColor(iEvt);
+    }
     hist[iEvt]->SetMarkerSize(1.);
     hist[iEvt]->Draw("same");
   }
+
+  DrawText(0.68, 0.88, 0.88,0.93);
+
+
   //hRapPhiCorr->Draw("same");
   cout << "Saving rapidity and azimuthal angle correlation plot as: figures/hRapPhi.pdf" << endl;
 
@@ -304,7 +353,7 @@ void rapPhiPtPlot(){
     hRapPhiPtCorr[iEvt]->SetMarkerColor(iEvt);
     hRapPhiPtCorr[iEvt]->SetMarkerStyle(20);
     hRapPhiPtCorr[iEvt]->SetMarkerSize(1.);
-    hRapPhiPtCorr[iEvt]->Draw("same SURF");
+    hRapPhiPtCorr[iEvt]->Draw("same BOX");
   }
   //hRapPhiCorr->Draw("same");
   cout << "Saving 3D plot as: figures/hRapPhiPt.pdf" << endl;

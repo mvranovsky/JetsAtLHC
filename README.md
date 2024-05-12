@@ -28,4 +28,16 @@ after that, one should be able to run the generation of events by running the co
 The output is the *jetGen.root* file, which contains a TTree which holds important information about the events and a correlation plot of rapidity and azimuthal angle. 
 
 ## FastJet
-FastJet program is designed to find jets
+FastJet software is used for finding jets particle collisions. It includes several jet finding algorithms such as k_{t}, anti-k_{t} or Cambridge/Aachen. To compile the program use command:
+
+<pre><code> g++ -o fastjetCluster fastjetCluster.cc -I/home/user/fastjet/fastjet-3.4.2/include $(root-config --cflags) -L/home/user/fastjet/fastjet-3.4.2/lib -lfastjet $(root-config --libs) </pre></code>
+
+then one needs to export FastJet library similarly to Pythia8.
+
+<pre><code> export LD_LIBRARY_PATH=/home/michal/fastjet/fastjet-3.4.2/src/.libs:/home/michal/root/root/lib:$LD_LIBRARY_PATH </pre></code>
+
+Once these 2 commands with correct paths to ROOT and FastJet are used, one should be seeing an executable file called *fastjetCluster*. To run it, press the command below.
+
+<pre><code> ./fastjetCluster </pre></code>
+
+The output of the project- figures are stored in directory figures/.
